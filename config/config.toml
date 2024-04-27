@@ -1,0 +1,11 @@
+[database]
+host = "localhost"
+post = 5432
+username = "admin"
+password = "password"
+dbname = "go_chat_db"
+driver = "postgres"
+
+[server]
+host = "localhost"
+port = 8080
