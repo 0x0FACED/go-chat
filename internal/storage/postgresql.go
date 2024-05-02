@@ -2,10 +2,12 @@ package storage
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"go-chat/config"
 	"go-chat/internal/models"
+	"go-chat/internal/utils"
 )
 
 type Postgres struct {
@@ -47,8 +49,38 @@ func (p *Postgres) GetConnectionString() string {
 }
 
 func (p *Postgres) Login(u *models.User) (*models.User, error) {
-	//TODO implement me
-	panic("implement me")
+	err := utils.ValidateUser(u)
+	if err != nil {
+		return nil, err
+	}
+
+	hashedPass := u.HashPassword(u.Password)
+
+	tx, err := p.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := tx.Prepare(utils.QueryLoginTx)
+	if err != nil {
+		return nil, err
+	}
+
+	var id int
+	var username string
+	err = stmt.QueryRow(u.Username, hashedPass).Scan(&id, &username)
+	if err != nil {
+		if tx.Rollback() != nil {
+			return nil, errors.New(utils.ErrRollbackTx + err.Error())
+		}
+		return nil, errors.New(utils.ErrIncorrectUsernameOrPass)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, errors.New(utils.ErrCommitTx + err.Error())
+	}
+	return u, nil
 }
 
 func (p *Postgres) Register(u *models.User) (*models.User, error) {
@@ -56,7 +88,7 @@ func (p *Postgres) Register(u *models.User) (*models.User, error) {
 	panic("implement me")
 }
 
-func (p *Postgres) SaveMessage(mes *models.Message) error {
+func (p *Postgres) SaveMessages(mes *models.Message) error {
 	//TODO implement me
 	panic("implement me")
 }
