@@ -29,6 +29,7 @@ func (s *Server) PrepareServer() error {
 		s.logger.Fatalln("Cannot InitDatabase(): ", err)
 		return err
 	}
+	s.prepareRoutes()
 	return nil
 }
 
@@ -50,6 +51,7 @@ func (s *Server) prepareRoutes() {
 	r.Handle(http.MethodPost, "/register", s.handleRegister)
 	r.Handle(http.MethodPost, "/login", s.handleLogin)
 	r.Handle(http.MethodPost, "/send_message", s.handleSendMessage)
+	r.Handle(http.MethodGet, "/get_messages", s.handleGetMessages)
 	s.r = r
 }
 
