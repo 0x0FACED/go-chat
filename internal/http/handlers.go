@@ -13,3 +13,7 @@ func (s *Server) handleLogin(ctx *gin.Context) {
 func (s *Server) handleSendMessage(ctx *gin.Context) {
 	// ...
 }
+
+func (s *Server) handleGetMessages(ctx *gin.Context) {
+	// ...
+}
