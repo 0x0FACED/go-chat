@@ -50,7 +50,7 @@ func (m *MySQL) Register(u *models.User) (*models.User, error) {
 	panic("implement me")
 }
 
-func (m *MySQL) SaveMessage(mes *models.Message) error {
+func (m *MySQL) SaveMessages(mes *models.Message) error {
 	//TODO implement me
 	panic("implement me")
 }
