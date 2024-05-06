@@ -6,13 +6,40 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"go-chat/internal/models"
+	"strconv"
+	"time"
 )
+
+type Options struct {
+	Host        string
+	Port        int
+	Network     string
+	Username    string
+	Password    string
+	DialTimeout time.Duration
+	MaxRetries  int
+	// add more //
+}
 
 type Client struct {
 	Redis *redis.Client
 }
 
-func (r *Client) SaveMessage(message *models.Message) error {
+func NewRedis(opt *Options) *Client {
+	r := redis.NewClient(&redis.Options{
+		Addr:        opt.Host + ":" + strconv.Itoa(opt.Port),
+		Network:     opt.Network,
+		Username:    opt.Username,
+		Password:    opt.Password,
+		DialTimeout: opt.DialTimeout,
+		MaxRetries:  opt.MaxRetries,
+	})
+	return &Client{
+		Redis: r,
+	}
+}
+
+func (c *Client) SaveMessage(message *models.Message) error {
 	ctx := context.Background()
 	key := fmt.Sprintf("messages:%d", message.ID)
 
@@ -21,15 +48,15 @@ func (r *Client) SaveMessage(message *models.Message) error {
 		return err
 	}
 
-	_, err = r.Redis.Set(ctx, key, jsonData, 0).Result()
+	_, err = c.Redis.Set(ctx, key, jsonData, 0).Result()
 	return err
 }
 
-func (r *Client) GetMessages(senderID int, recipientID int) ([]*models.Message, error) {
+func (c *Client) GetMessages(senderID int, recipientID int) ([]*models.Message, error) {
 	ctx := context.Background()
 	key := fmt.Sprintf("messages:%d:%d", senderID, recipientID)
 
-	results, err := r.Redis.LRange(ctx, key, 0, -1).Result()
+	results, err := c.Redis.LRange(ctx, key, 0, -1).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -47,10 +74,10 @@ func (r *Client) GetMessages(senderID int, recipientID int) ([]*models.Message, 
 	return messages, nil
 }
 
-func (r *Client) DeleteMessage(id int) error {
+func (c *Client) DeleteMessage(id int) error {
 	ctx := context.Background()
 	key := fmt.Sprintf("messages:%d", id)
 
-	_, err := r.Redis.Del(ctx, key).Result()
+	_, err := c.Redis.Del(ctx, key).Result()
 	return err
 }
