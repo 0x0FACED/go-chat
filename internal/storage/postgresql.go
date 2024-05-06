@@ -55,21 +55,19 @@ func (p *Postgres) Login(u *models.User) (*models.User, error) {
 
 	tx, err := p.db.Begin()
 	if err != nil {
-		return nil, err
+		return nil, errors.New(utils.ErrBeginTx + err.Error())
 	}
+	defer tx.Rollback()
 
 	stmt, err := tx.Prepare(utils.QueryLoginTx)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(utils.ErrPrepareTx + err.Error())
 	}
 
 	var id int
 	var username string
 	err = stmt.QueryRow(u.Username, hashedPass).Scan(&id, &username)
 	if err != nil {
-		if tx.Rollback() != nil {
-			return nil, errors.New(utils.ErrRollbackTx + err.Error())
-		}
 		return nil, errors.New(utils.ErrIncorrectUsernameOrPass)
 	}
 
