@@ -79,8 +79,37 @@ func (p *Postgres) Login(u *models.User) (*models.User, error) {
 }
 
 func (p *Postgres) Register(u *models.User) (*models.User, error) {
-	//TODO implement me
-	panic("implement me")
+	if err := utils.ValidateUser(u); err != nil {
+		return nil, err
+	}
+
+	if _, err := p.GetUserByUsername(u.Username); err != nil {
+		return nil, err
+	}
+
+	hashedPass := u.HashPassword(u.Password)
+	tx, err := p.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.Prepare(utils.QueryRegisterTx)
+	if err != nil {
+		return nil, errors.New(utils.ErrPrepareTx + err.Error())
+	}
+
+	_, err = stmt.Exec(u.Name, u.Username, hashedPass, u.Description)
+	if err != nil {
+		return nil, errors.New(utils.ErrExecQueryTx + err.Error())
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, errors.New(utils.ErrCommitTx + err.Error())
+	}
+
+	return u, nil
 }
 
 func (p *Postgres) SaveMessages(mes *models.Message) error {
