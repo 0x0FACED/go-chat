@@ -8,6 +8,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/models"
 	"go-chat/internal/utils"
+	"time"
 )
 
 type Postgres struct {
@@ -65,8 +66,11 @@ func (p *Postgres) Login(u *models.User) (*models.User, error) {
 	}
 
 	var id int
+	var name string
 	var username string
-	err = stmt.QueryRow(u.Username, hashedPass).Scan(&id, &username)
+	var regDate time.Time
+	var desc string
+	err = stmt.QueryRow(u.Username, hashedPass).Scan(&id, &name, &username, &regDate, &desc)
 	if err != nil {
 		return nil, errors.New(utils.ErrIncorrectUsernameOrPass)
 	}
@@ -75,6 +79,8 @@ func (p *Postgres) Login(u *models.User) (*models.User, error) {
 	if err != nil {
 		return nil, errors.New(utils.ErrCommitTx + err.Error())
 	}
+	u.Description = desc
+	u.RegistrationDate = regDate
 	return u, nil
 }
 
