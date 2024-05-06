@@ -20,13 +20,11 @@ func (p *Postgres) Connect() error {
 	p.logger = logrus.New()
 	db, err := sql.Open(p.Config.DriverName, p.GetConnectionString())
 	if err != nil {
-		p.logger.Fatalln("Postgres: Cannot Open() database with driver name ", p.Config.DriverName, ", connection string ", p.GetConnectionString())
-		return err
+		return errors.New(utils.ErrOpenDB + err.Error())
 	}
 	err = db.Ping()
 	if err != nil {
-		p.logger.Errorln("Postgres: Cannot Ping() database with driver name ", p.Config.DriverName, ", connection string ", p.GetConnectionString())
-		return err
+		return errors.New(utils.ErrPingDB + err.Error())
 	}
 	p.db = db
 	return nil
@@ -36,8 +34,7 @@ func (p *Postgres) Disconnect() error {
 	if p.db != nil {
 		err := p.db.Close()
 		if err != nil {
-			p.logger.Fatalln("Postgres: Cannot Close() database: ", err)
-			return err
+			return errors.New(utils.ErrCloseDB + err.Error())
 		}
 	}
 	return nil
