@@ -118,7 +118,7 @@ func (p *Postgres) Register(u *models.User) (*models.User, error) {
 	return u, nil
 }
 
-func (p *Postgres) SaveMessages(mes *models.Message) error {
+func (p *Postgres) SaveMessages(mes []models.Message) error {
 	//TODO implement me
 	panic("implement me")
 }
