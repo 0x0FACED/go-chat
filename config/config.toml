@@ -1,10 +1,19 @@
 [database]
 host = "localhost"
-post = 5432
+port = 5432
 username = "admin"
 password = "password"
 dbname = "go_chat_db"
 driver = "postgres"
+
+[redis]
+host = "localhost"
+port = 6379
+network = "tcp"
+username = ""
+password = ""
+dial_timeout = 0 # if 0 -> 5 secs
+max_retries = 0 # if 0 -> 3 retries
 
 [server]
 host = "localhost"
