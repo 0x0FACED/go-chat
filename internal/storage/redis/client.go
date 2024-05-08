@@ -16,7 +16,7 @@ type Client struct {
 
 func NewRedis(cfg *config.RedisConfig) *Client {
 	r := redis.NewClient(&redis.Options{
-		Addr:        cfg.Host + ":" + strconv.Itoa(opt.Port),
+		Addr:        cfg.Host + ":" + strconv.Itoa(cfg.Port),
 		Network:     cfg.Network,
 		Username:    cfg.Username,
 		Password:    cfg.Password,
