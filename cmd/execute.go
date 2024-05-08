@@ -1,13 +1,16 @@
 package cmd
 
-import "go-chat/internal/http"
+import (
+	"go-chat/config"
+	"go-chat/internal/http"
+	"log"
+)
 
-func Execute() error {
-	s := http.NewServer()
-	err := s.PrepareServer()
+func Execute() {
+	cfg, err := config.Load()
+	s := http.NewServer(*cfg)
+	err = s.StartServer()
 	if err != nil {
-		return err
+		log.Fatalln("cant start server:", err)
 	}
-	s.StartServer()
-	return nil
 }
