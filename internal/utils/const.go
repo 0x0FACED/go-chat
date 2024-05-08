@@ -1,16 +1,17 @@
 package utils
 
 const (
-	ErrOpenDB  = "cant open db:"
-	ErrPingDB  = "cant ping db:"
-	ErrCloseDB = "cant close db:"
+	ErrOpenDB     = "cant open db:"
+	ErrPingDB     = "cant ping db:"
+	ErrCloseDB    = "cant close db:"
+	ErrDriverName = "unknown db driver"
 )
 
 const (
 	ErrUsernameLength = "username len must be <= 16 and not 0"
 	ErrPasswordLength = "pass len must be >= 5"
 
-	ErrUserExists = "cant register, user exists"
+	ErrUserExists = "user exists"
 
 	ErrIncorrectUsernameOrPass = "incorrect username or pass"
 )
