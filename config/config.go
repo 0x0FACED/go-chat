@@ -23,11 +23,28 @@ type RedisConfig struct {
 	Username    string        `toml:"username"`
 	Password    string        `toml:"password"`
 	DialTimeout time.Duration `toml:"dial_timeout"`
-	MaxTries    int           `toml:"max_tries"`
+	MaxRetries  int           `toml:"max_tries"`
 }
 
 type Config struct {
 	Server   ServerConfig   `toml:"server"`
 	Database DatabaseConfig `toml:"database"`
 	Redis    RedisConfig    `toml:"redis"`
+}
+
+func Load() (*Config, error) {
+	cfgFile, err := os.Open("config.toml")
+	if err != nil {
+		return nil, err
+	}
+	defer cfgFile.Close()
+	cfgBytes, err := io.ReadAll(cfgFile)
+	if err != nil {
+		return nil, err
+	}
+	var config *Config
+	if err := toml.Unmarshal(cfgBytes, &config); err != nil {
+		return nil, err
+	}
+	return config, nil
 }
