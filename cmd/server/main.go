@@ -5,8 +5,5 @@ import (
 )
 
 func main() {
-	err := cmd.Execute()
-	if err != nil {
-		return
-	}
+	cmd.Execute()
 }
