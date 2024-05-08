@@ -42,8 +42,8 @@ func (p *Postgres) Disconnect() error {
 }
 
 func (p *Postgres) GetConnectionString() string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		p.Config.Host, p.Config.Port, p.Config.Username, p.Config.Password, p.Config.DBName)
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		p.Config.Username, p.Config.Password, p.Config.Host, p.Config.Port, p.Config.DBName)
 }
 
 func (p *Postgres) Login(u *models.User) (*models.User, error) {
