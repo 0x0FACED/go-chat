@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -39,12 +40,17 @@ func (s *Server) prepareServer() error {
 }
 
 func (s *Server) initDatabase() error {
-	db := &storage.Postgres{
-		Config: s.config.Database,
+	var db storage.Database
+	switch s.config.Database.DriverName {
+	case "postgres":
+		db = &storage.Postgres{Config: s.config.Database}
+	case "mysql":
+		db = &storage.MySQL{Config: s.config.Database}
+	default:
+		return errors.New(utils.ErrDriverName)
 	}
 	err := db.Connect()
 	if err != nil {
-		s.logger.Errorln("Failed to connect to database:", err)
 		return err
 	}
 	s.db = db
