@@ -28,7 +28,7 @@ func NewServer(cfg config.Config) *Server {
 	}
 }
 
-func (s *Server) PrepareServer() error {
+func (s *Server) prepareServer() error {
 	err := s.initDatabase()
 	if err != nil {
 		s.logger.Fatalln("Cannot InitDatabase(): ", err)
