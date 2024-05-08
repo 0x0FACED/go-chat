@@ -1,6 +1,11 @@
 package config
 
-import "time"
+import (
+	"github.com/pelletier/go-toml/v2"
+	"io"
+	"os"
+	"time"
+)
 
 type ServerConfig struct {
 	Host string `toml:"host"`
