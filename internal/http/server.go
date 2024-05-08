@@ -9,7 +9,7 @@ import (
 	"go-chat/internal/storage"
 	"go-chat/internal/storage/redis"
 	"go-chat/internal/utils"
-	"net/http"
+	"go-chat/migrations"
 	"strconv"
 )
 
@@ -36,6 +36,7 @@ func (s *Server) prepareServer() error {
 		s.logger.Fatalln("Cannot InitDatabase(): ", err)
 		return err
 	}
+	migrations.Up(s.db.GetConnectionString())
 	s.prepareRoutes()
 	return nil
 }
@@ -58,19 +59,12 @@ func (s *Server) initDatabase() error {
 	return nil
 }
 
-func (s *Server) prepareRoutes() {
-	s.r.Handle(http.MethodPost, "/register", s.handleRegister)
-	s.r.Handle(http.MethodPost, "/login", s.handleLogin)
-	s.r.Handle(http.MethodPost, "/send_message", s.handleSendMessage)
-	s.r.Handle(http.MethodGet, "/get_messages", s.handleGetMessages)
-}
-
 func (s *Server) StartServer() error {
 	err := s.prepareServer()
 	if err != nil {
 		return err
 	}
-	addr := s.config.Server.Host + strconv.Itoa(s.config.Server.Port)
+	addr := s.config.Server.Host + ":" + strconv.Itoa(s.config.Server.Port)
 	err = s.r.Run(addr)
 	if err != nil {
 		return err
