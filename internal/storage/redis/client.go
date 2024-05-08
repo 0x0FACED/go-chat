@@ -5,34 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/redis/go-redis/v9"
+	"go-chat/config"
 	"go-chat/internal/models"
 	"strconv"
-	"time"
 )
-
-type Options struct {
-	Host        string
-	Port        int
-	Network     string
-	Username    string
-	Password    string
-	DialTimeout time.Duration
-	MaxRetries  int
-	// add more //
-}
 
 type Client struct {
 	Redis *redis.Client
 }
 
-func NewRedis(opt *Options) *Client {
+func NewRedis(cfg *config.RedisConfig) *Client {
 	r := redis.NewClient(&redis.Options{
-		Addr:        opt.Host + ":" + strconv.Itoa(opt.Port),
-		Network:     opt.Network,
-		Username:    opt.Username,
-		Password:    opt.Password,
-		DialTimeout: opt.DialTimeout,
-		MaxRetries:  opt.MaxRetries,
+		Addr:        cfg.Host + ":" + strconv.Itoa(opt.Port),
+		Network:     cfg.Network,
+		Username:    cfg.Username,
+		Password:    cfg.Password,
+		DialTimeout: cfg.DialTimeout,
+		MaxRetries:  cfg.MaxRetries,
 	})
 	return &Client{
 		Redis: r,
