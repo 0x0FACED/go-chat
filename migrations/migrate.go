@@ -1,20 +1,22 @@
 package migrations
 
 import (
+	"errors"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/sirupsen/logrus"
 )
 
-func MigrateUp(dbURL string) {
+func Up(dbURL string) {
 	m, err := migrate.New(
-		"./migrations",
+		"file://./migrations/",
 		dbURL)
 	if err != nil {
-		panic(err)
+		logrus.Errorln("cant create migration:", err)
 	}
 
-	if err := m.Up(); err != nil {
-		panic(err)
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		logrus.Errorln("cant migrate:", err)
 	}
 }
