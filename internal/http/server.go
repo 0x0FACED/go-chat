@@ -6,6 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"go-chat/config"
 	"go-chat/internal/storage"
+	"go-chat/internal/storage/redis"
+	"go-chat/internal/utils"
 	"net/http"
 )
 
@@ -14,12 +16,15 @@ type Server struct {
 	db     storage.Database
 	config config.Config
 	logger *logrus.Logger
+	redis  *redis.Client
 }
 
-func NewServer() *Server {
+func NewServer(cfg config.Config) *Server {
 	return &Server{
 		r:      gin.Default(),
 		logger: logrus.New(),
+		config: cfg,
+		redis:  redis.NewRedis(&cfg.Redis),
 	}
 }
 
