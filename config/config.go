@@ -38,7 +38,7 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
-	cfgFile, err := os.Open("config.toml")
+	cfgFile, err := os.Open("./config/config.toml")
 	if err != nil {
 		return nil, err
 	}
