@@ -10,6 +10,7 @@ import (
 	"go-chat/internal/storage/redis"
 	"go-chat/internal/utils"
 	"net/http"
+	"strconv"
 )
 
 type Server struct {
@@ -58,14 +59,21 @@ func (s *Server) initDatabase() error {
 }
 
 func (s *Server) prepareRoutes() {
-	r := gin.Default()
-	r.Handle(http.MethodPost, "/register", s.handleRegister)
-	r.Handle(http.MethodPost, "/login", s.handleLogin)
-	r.Handle(http.MethodPost, "/send_message", s.handleSendMessage)
-	r.Handle(http.MethodGet, "/get_messages", s.handleGetMessages)
-	s.r = r
+	s.r.Handle(http.MethodPost, "/register", s.handleRegister)
+	s.r.Handle(http.MethodPost, "/login", s.handleLogin)
+	s.r.Handle(http.MethodPost, "/send_message", s.handleSendMessage)
+	s.r.Handle(http.MethodGet, "/get_messages", s.handleGetMessages)
 }
 
-func (s *Server) StartServer() {
-	// ...
+func (s *Server) StartServer() error {
+	err := s.prepareServer()
+	if err != nil {
+		return err
+	}
+	addr := s.config.Server.Host + strconv.Itoa(s.config.Server.Port)
+	err = s.r.Run(addr)
+	if err != nil {
+		return err
+	}
+	return nil
 }
