@@ -26,7 +26,7 @@ func NewServer(cfg config.Config) *Server {
 		r:      gin.Default(),
 		logger: logrus.New(),
 		config: cfg,
-		redis:  redis.NewRedis(&cfg.Redis),
+		redis:  redis.New(&cfg.Redis),
 	}
 }
 
