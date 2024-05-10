@@ -25,6 +25,7 @@ const (
 )
 
 const (
-	QueryLoginTx    = "SELECT * from users where username = ? and password = ?"
-	QueryRegisterTx = "INSERT INTO users (name, username, password, description) VALUES ($1, $2, $3, $4)"
+	QueryLoginTx       = "SELECT id, name, username, registration_date, description FROM users WHERE username = $1 AND password = $2"
+	QueryRegisterTx    = "INSERT INTO users (name, username, password, description) VALUES ($1, $2, $3, $4)"
+	QueryGetPasswordTx = "SELECT password FROM users WHERE username = $1"
 )
