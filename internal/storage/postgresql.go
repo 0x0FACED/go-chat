@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"go-chat/config"
 	"go-chat/internal/models"
 	"go-chat/internal/utils"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Postgres struct {
@@ -52,15 +53,29 @@ func (p *Postgres) Login(u *models.User) (*models.User, error) {
 		return nil, err
 	}
 
-	hashedPass := u.HashPassword(u.Password)
-
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, errors.New(utils.ErrBeginTx + err.Error())
 	}
 	defer tx.Rollback()
 
-	stmt, err := tx.Prepare(utils.QueryLoginTx)
+	stmtPass, err := tx.Prepare(utils.QueryGetPasswordTx)
+	if err != nil {
+		return nil, errors.New(utils.ErrPrepareTx + err.Error())
+	}
+
+	var hashedPass string
+	err = stmtPass.QueryRow(u.Username).Scan(&hashedPass)
+	if err != nil {
+		return nil, errors.New(utils.ErrExecQueryTx + err.Error())
+	}
+
+	err = u.CompareHashPassword(u.Password, hashedPass)
+	if err != nil {
+		return nil, errors.New(utils.ErrIncorrectUsernameOrPass)
+	}
+
+	stmtLogin, err := tx.Prepare(utils.QueryLoginTx)
 	if err != nil {
 		return nil, errors.New(utils.ErrPrepareTx + err.Error())
 	}
@@ -70,7 +85,7 @@ func (p *Postgres) Login(u *models.User) (*models.User, error) {
 	var username string
 	var regDate time.Time
 	var desc string
-	err = stmt.QueryRow(u.Username, hashedPass).Scan(&id, &name, &username, &regDate, &desc)
+	err = stmtLogin.QueryRow(u.Username, hashedPass).Scan(&id, &name, &username, &regDate, &desc)
 	if err != nil {
 		return nil, errors.New(utils.ErrIncorrectUsernameOrPass)
 	}
@@ -89,11 +104,15 @@ func (p *Postgres) Register(u *models.User) (*models.User, error) {
 		return nil, err
 	}
 
-	if _, err := p.GetUserByUsername(u.Username); err != nil {
+	/* 	if _, err := p.GetUserByUsername(u.Username); err != nil {
+		return nil, err
+	} */
+
+	hashedPass, err := u.HashPassword(u.Password)
+	fmt.Println("Hashed pass register:", hashedPass)
+	if err != nil {
 		return nil, err
 	}
-
-	hashedPass := u.HashPassword(u.Password)
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
