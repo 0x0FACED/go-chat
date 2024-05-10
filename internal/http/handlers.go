@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
+	"go-chat/internal/models"
 	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) prepareRoutes() {
@@ -13,11 +14,35 @@ func (s *Server) prepareRoutes() {
 }
 
 func (s *Server) handleRegister(ctx *gin.Context) {
-	// ...
+	var newUser models.User
+	if err := ctx.BindJSON(&newUser); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+
+	u, err := s.db.Register(&newUser)
+	if err != nil {
+		s.logger.Errorln("cant register u:", u, ", err:", err)
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"err": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"mes": "registered"})
 }
 
 func (s *Server) handleLogin(ctx *gin.Context) {
-	// ...
+	var user models.User
+	if err := ctx.BindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+
+	u, err := s.db.Login(&user)
+	if err != nil {
+		s.logger.Errorln("cant login:", err)
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"err": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"token": "test_token", "username": u.Username})
 }
 
 func (s *Server) handleSendMessage(ctx *gin.Context) {
