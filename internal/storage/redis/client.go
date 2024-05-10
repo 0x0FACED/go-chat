@@ -14,7 +14,7 @@ type Client struct {
 	Redis *redis.Client
 }
 
-func NewRedis(cfg *config.RedisConfig) *Client {
+func New(cfg *config.RedisConfig) *Client {
 	r := redis.NewClient(&redis.Options{
 		Addr:        cfg.Host + ":" + strconv.Itoa(cfg.Port),
 		Network:     cfg.Network,
