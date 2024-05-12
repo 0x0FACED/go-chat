@@ -1,15 +1,18 @@
 package config
 
 import (
-	"github.com/pelletier/go-toml/v2"
 	"io"
 	"os"
 	"time"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 type ServerConfig struct {
-	Host string `toml:"host"`
-	Port int    `toml:"port"`
+	Host       string `toml:"host"`
+	Port       int    `toml:"port"`
+	SessionKey string `toml:"session_key"`
+	StoreName  string `toml:"store_name"`
 }
 
 type DatabaseConfig struct {
