@@ -1,7 +1,7 @@
 [database]
 host = "localhost"
 port = 5432
-username = "admin"
+username = "postgres"
 password = "password"
 dbname = "go_chat_db"
 driver = "postgres"
@@ -18,3 +18,5 @@ max_retries = 0 # if 0 -> 3 retries
 [server]
 host = "localhost"
 port = 8080
+session_key = "secret"
+store_name = "sessions"
