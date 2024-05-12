@@ -60,7 +60,19 @@ func (s *Server) handleLogin(ctx *gin.Context) {
 }
 
 func (s *Server) handleSendMessage(ctx *gin.Context) {
-	// ...
+	var mes models.Message
+	if err := ctx.BindJSON(&mes); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+
+	err := s.redis.SaveMessage(&mes)
+	if err != nil {
+		s.logger.Println("err save mes:", err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"your_mes": mes})
 }
 
 func (s *Server) handleGetMessages(ctx *gin.Context) {
