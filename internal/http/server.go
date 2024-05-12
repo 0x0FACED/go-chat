@@ -2,15 +2,18 @@ package http
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
-	"github.com/sirupsen/logrus"
 	"go-chat/config"
 	"go-chat/internal/storage"
 	"go-chat/internal/storage/redis"
 	"go-chat/internal/utils"
 	"go-chat/migrations"
 	"strconv"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
@@ -31,6 +34,7 @@ func NewServer(cfg config.Config) *Server {
 }
 
 func (s *Server) prepareServer() error {
+	s.prepareCookiesStore()
 	err := s.initDatabase()
 	if err != nil {
 		s.logger.Fatalln("Cannot InitDatabase(): ", err)
@@ -57,6 +61,11 @@ func (s *Server) initDatabase() error {
 	}
 	s.db = db
 	return nil
+}
+
+func (s *Server) prepareCookiesStore() {
+	store := cookie.NewStore([]byte(s.config.Server.SessionKey))
+	s.r.Use(sessions.Sessions(s.config.Server.StoreName, store))
 }
 
 func (s *Server) StartServer() error {
