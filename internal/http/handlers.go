@@ -3,7 +3,10 @@ package http
 import (
 	"go-chat/internal/models"
 	"net/http"
+
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func (s *Server) prepareRoutes() {
@@ -30,6 +33,14 @@ func (s *Server) handleRegister(ctx *gin.Context) {
 }
 
 func (s *Server) handleLogin(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	token := session.Get("token")
+	s.logger.Println("Token: ", token)
+	if token != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"err": "already authorized", "token": token})
+		return
+	}
+
 	var user models.User
 	if err := ctx.BindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
@@ -42,7 +53,10 @@ func (s *Server) handleLogin(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"err": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"token": "test_token", "username": u.Username})
+	uuid := uuid.NewString()
+	session.Set("token", uuid)
+	session.Save()
+	ctx.JSON(http.StatusOK, gin.H{"token": session.Get("token"), "username": u.Username})
 }
 
 func (s *Server) handleSendMessage(ctx *gin.Context) {
