@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"go-chat/config"
 	"go-chat/internal/models"
 	"strconv"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type Client struct {
-	Redis *redis.Client
+	redis *redis.Client
 }
 
 func New(cfg *config.RedisConfig) *Client {
@@ -24,20 +25,19 @@ func New(cfg *config.RedisConfig) *Client {
 		MaxRetries:  cfg.MaxRetries,
 	})
 	return &Client{
-		Redis: r,
+		redis: r,
 	}
 }
 
 func (c *Client) SaveMessage(message *models.Message) error {
 	ctx := context.Background()
 	key := fmt.Sprintf("messages:%d", message.ID)
-
 	jsonData, err := json.Marshal(message)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.Redis.Set(ctx, key, jsonData, 0).Result()
+	_, err = c.redis.Set(ctx, key, jsonData, 0).Result()
 	return err
 }
 
@@ -45,7 +45,7 @@ func (c *Client) GetMessages(senderID int, recipientID int) ([]*models.Message, 
 	ctx := context.Background()
 	key := fmt.Sprintf("messages:%d:%d", senderID, recipientID)
 
-	results, err := c.Redis.LRange(ctx, key, 0, -1).Result()
+	results, err := c.redis.LRange(ctx, key, 0, -1).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +67,6 @@ func (c *Client) DeleteMessage(id int) error {
 	ctx := context.Background()
 	key := fmt.Sprintf("messages:%d", id)
 
-	_, err := c.Redis.Del(ctx, key).Result()
+	_, err := c.redis.Del(ctx, key).Result()
 	return err
 }
