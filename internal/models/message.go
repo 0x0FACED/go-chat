@@ -8,4 +8,5 @@ type Message struct {
 	ReceiverID int       `json:"receiver_id" db:"receiver_id"`
 	Text       string    `json:"text" db:"text"`
 	Timestamp  time.Time `json:"timestamp" db:"timestamp"`
+	ChatID     int       `json:"chat_id" db:"chat_id"`
 }
