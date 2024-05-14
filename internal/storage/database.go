@@ -11,6 +11,7 @@ type Database interface {
 
 	UserDB
 	MessageDB
+	ChatDB
 }
 
 type UserDB interface {
@@ -22,6 +23,12 @@ type UserDB interface {
 
 type MessageDB interface {
 	SaveMessages(mes []models.Message) error
+	SaveMessage(mes *models.Message) (int, error)
 	GetMessageByID(id int) (*models.Message, error)
+}
+
+type ChatDB interface {
+	CreateChat(firstUserID int, secondUserID int) (int, error)
+	FindChatByUserIDs(firstUserID int, secondUserID int) (int, error)
 	GetChatHistory(senderID int, recipientID int) ([]models.Message, error)
 }
