@@ -3,9 +3,10 @@ package storage
 import (
 	"database/sql"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"go-chat/config"
 	"go-chat/internal/models"
+
+	"github.com/sirupsen/logrus"
 )
 
 type MySQL struct {
@@ -55,12 +56,12 @@ func (m *MySQL) SaveMessages(mes []models.Message) error {
 	panic("implement me")
 }
 
-func (m *MySQL) GetMessageByID(id int) (*models.Message, error) {
+func (m *MySQL) SaveMessage(mes *models.Message) (int, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m *MySQL) GetChatHistory(senderID int, recipientID int) ([]models.Message, error) {
+func (m *MySQL) GetMessageByID(id int) (*models.Message, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -71,6 +72,21 @@ func (m *MySQL) GetUserByUsername(username string) (*models.User, error) {
 }
 
 func (m *MySQL) GetUserByID(id int) (*models.User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MySQL) CreateChat(firstUserID int, secondUserID int) (int, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MySQL) FindChatByUserIDs(firstUserID int, secondUserID int) (int, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MySQL) GetChatHistory(senderID int, recipientID int) ([]models.Message, error) {
 	//TODO implement me
 	panic("implement me")
 }
