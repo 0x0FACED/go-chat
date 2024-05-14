@@ -142,12 +142,32 @@ func (p *Postgres) SaveMessages(mes []models.Message) error {
 	panic("implement me")
 }
 
-func (p *Postgres) GetMessageByID(id int) (*models.Message, error) {
-	//TODO implement me
-	panic("implement me")
+func (p *Postgres) SaveMessage(mes *models.Message) (int, error) {
+	tx, err := p.db.Begin()
+	if err != nil {
+		return -1, err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.Prepare(utils.QuerySaveMessageTx)
+	if err != nil {
+		return -1, err
+	}
+
+	var mesID int
+	err = stmt.QueryRow(mes.SenderID, mes.ReceiverID, mes.Text, mes.ChatID).Scan(&mesID)
+	if err != nil {
+		return -1, err
+	}
+	err = tx.Commit()
+	if err != nil {
+		return -1, err
+	}
+
+	return mesID, nil
 }
 
-func (p *Postgres) GetChatHistory(senderID int, recipientID int) ([]models.Message, error) {
+func (p *Postgres) GetMessageByID(id int) (*models.Message, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -158,6 +178,21 @@ func (p *Postgres) GetUserByUsername(username string) (*models.User, error) {
 }
 
 func (p *Postgres) GetUserByID(id int) (*models.User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *Postgres) CreateChat(firstUserID int, secondUserID int) (int, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *Postgres) FindChatByUserIDs(firstUserID int, secondUserID int) (int, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *Postgres) GetChatHistory(senderID int, recipientID int) ([]models.Message, error) {
 	//TODO implement me
 	panic("implement me")
 }
