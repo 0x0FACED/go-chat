@@ -183,13 +183,21 @@ func (p *Postgres) GetUserByID(id int) (*models.User, error) {
 }
 
 func (p *Postgres) CreateChat(firstUserID int, secondUserID int) (int, error) {
-	//TODO implement me
-	panic("implement me")
+	var chatID int
+	err := p.db.QueryRow(utils.QueryCreateChatTx, firstUserID, secondUserID).Scan(&chatID)
+	if err != nil {
+		return -1, err
+	}
+	return chatID, nil
 }
 
 func (p *Postgres) FindChatByUserIDs(firstUserID int, secondUserID int) (int, error) {
-	//TODO implement me
-	panic("implement me")
+	var chatID int
+	err := p.db.QueryRow(utils.QueryFindChatTx, firstUserID, secondUserID).Scan(&chatID)
+	if err != nil {
+		return -1, err
+	}
+	return chatID, nil
 }
 
 func (p *Postgres) GetChatHistory(senderID int, recipientID int) ([]models.Message, error) {
