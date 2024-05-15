@@ -23,7 +23,7 @@ type UserDB interface {
 
 type MessageDB interface {
 	SaveMessages(mes []models.Message) error
-	SaveMessage(mes *models.Message) (int, error)
+	SaveMessage(mes *models.Message) (*models.Message, error)
 	GetMessageByID(id int) (*models.Message, error)
 }
 
