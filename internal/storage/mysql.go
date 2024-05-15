@@ -56,7 +56,7 @@ func (m *MySQL) SaveMessages(mes []models.Message) error {
 	panic("implement me")
 }
 
-func (m *MySQL) SaveMessage(mes *models.Message) (int, error) {
+func (m *MySQL) SaveMessage(mes *models.Message) (*models.Message, error) {
 	//TODO implement me
 	panic("implement me")
 }
