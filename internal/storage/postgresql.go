@@ -7,6 +7,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/models"
 	"go-chat/internal/utils"
+	"log"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -142,29 +143,53 @@ func (p *Postgres) SaveMessages(mes []models.Message) error {
 	panic("implement me")
 }
 
-func (p *Postgres) SaveMessage(mes *models.Message) (int, error) {
+func (p *Postgres) SaveMessage(mes *models.Message) (*models.Message, error) {
+	chatID, err := p.FindChatByUserIDs(mes.SenderID, mes.ReceiverID)
+	if err != nil && err != sql.ErrNoRows {
+		log.Println("FindChat")
+		return nil, err
+	}
+
+	if chatID == -1 {
+		chatID, err = p.CreateChat(mes.SenderID, mes.ReceiverID)
+		if err != nil {
+			log.Println("CreateChat")
+			return nil, err
+		}
+	}
+
+	mes.ChatID = chatID
+
 	tx, err := p.db.Begin()
 	if err != nil {
-		return -1, err
+		log.Println("Begin")
+		return nil, err
 	}
 	defer tx.Rollback()
 
 	stmt, err := tx.Prepare(utils.QuerySaveMessageTx)
 	if err != nil {
-		return -1, err
+		log.Println("Prepare")
+		return nil, err
 	}
 
-	var mesID int
-	err = stmt.QueryRow(mes.SenderID, mes.ReceiverID, mes.Text, mes.ChatID).Scan(&mesID)
+	var id int
+	var ts time.Time
+	err = stmt.QueryRow(mes.SenderID, mes.ReceiverID, mes.Text, mes.ChatID).Scan(&id, &ts)
 	if err != nil {
-		return -1, err
+		log.Println("Query")
+		return nil, err
 	}
 	err = tx.Commit()
 	if err != nil {
-		return -1, err
+		log.Println("Commit")
+		return nil, err
 	}
 
-	return mesID, nil
+	mes.ID = id
+	mes.Timestamp = ts
+
+	return mes, nil
 }
 
 func (p *Postgres) GetMessageByID(id int) (*models.Message, error) {
