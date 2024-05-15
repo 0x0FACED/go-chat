@@ -65,14 +65,19 @@ func (s *Server) handleSendMessage(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-
-	err := s.redis.SaveMessage(&mes)
+	savedMes, err := s.db.SaveMessage(&mes)
 	if err != nil {
 		s.logger.Println("err save mes:", err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"your_mes": mes})
+	err = s.redis.SaveMessage(savedMes)
+	if err != nil {
+		s.logger.Println("err save mes:", err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"your_mes": savedMes})
 }
 
 func (s *Server) handleGetMessages(ctx *gin.Context) {
