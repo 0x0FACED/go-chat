@@ -74,6 +74,12 @@ func (s *Server) handleLogout(ctx *gin.Context) {
 }
 
 func (s *Server) handleSendMessage(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	token := session.Get(utils.SessionKey)
+	if token == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"err": "you are not logged in"})
+		return
+	}
 	var mes models.Message
 
 	if err := ctx.BindJSON(&mes); err != nil {
