@@ -8,6 +8,10 @@ const (
 )
 
 const (
+	SessionKey = "session_key"
+)
+
+const (
 	ErrUsernameLength = "username len must be <= 16 and not 0"
 	ErrPasswordLength = "pass len must be >= 5"
 
