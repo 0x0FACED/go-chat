@@ -2,6 +2,7 @@ package http
 
 import (
 	"go-chat/internal/models"
+	"go-chat/internal/utils"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -12,6 +13,7 @@ import (
 func (s *Server) prepareRoutes() {
 	s.r.Handle(http.MethodPost, "/register", s.handleRegister)
 	s.r.Handle(http.MethodPost, "/login", s.handleLogin)
+	s.r.Handle(http.MethodPost, "/logout", s.handleLogout)
 	s.r.Handle(http.MethodPost, "/send_message", s.handleSendMessage)
 	s.r.Handle(http.MethodGet, "/get_messages", s.handleGetMessages)
 }
@@ -34,10 +36,10 @@ func (s *Server) handleRegister(ctx *gin.Context) {
 
 func (s *Server) handleLogin(ctx *gin.Context) {
 	session := sessions.Default(ctx)
-	token := session.Get("token")
-	s.logger.Println("Token: ", token)
+	token := session.Get(utils.SessionKey)
+	s.logger.Println("TOKEN: ", token)
 	if token != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"err": "already authorized", "token": token})
+		ctx.JSON(http.StatusBadRequest, gin.H{"err": "already authorized", utils.SessionKey: token})
 		return
 	}
 
@@ -54,13 +56,26 @@ func (s *Server) handleLogin(ctx *gin.Context) {
 		return
 	}
 	uuid := uuid.NewString()
-	session.Set("token", uuid)
+	session.Set(utils.SessionKey, uuid)
 	session.Save()
-	ctx.JSON(http.StatusOK, gin.H{"token": session.Get("token"), "username": u.Username})
+	ctx.JSON(http.StatusOK, gin.H{utils.SessionKey: session.Get(utils.SessionKey), "username": u.Username})
+}
+
+func (s *Server) handleLogout(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	token := session.Get(utils.SessionKey)
+	if token != nil {
+		session.Delete(utils.SessionKey)
+		session.Save()
+		ctx.JSON(http.StatusOK, gin.H{"mes": "successfully logout"})
+		return
+	}
+	ctx.JSON(http.StatusBadRequest, gin.H{"err": "you are not logged in"})
 }
 
 func (s *Server) handleSendMessage(ctx *gin.Context) {
 	var mes models.Message
+
 	if err := ctx.BindJSON(&mes); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
