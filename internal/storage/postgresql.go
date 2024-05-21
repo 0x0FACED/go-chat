@@ -180,6 +180,7 @@ func (p *Postgres) SaveMessage(mes *models.Message) (*models.Message, error) {
 		log.Println("Query")
 		return nil, err
 	}
+
 	err = tx.Commit()
 	if err != nil {
 		log.Println("Commit")
@@ -226,6 +227,20 @@ func (p *Postgres) FindChatByUserIDs(firstUserID int, secondUserID int) (int, er
 }
 
 func (p *Postgres) GetChatHistory(senderID int, recipientID int) ([]models.Message, error) {
-	//TODO implement me
-	panic("implement me")
+	rows, err := p.db.Query(utils.QueryGetMessagesTx, senderID, recipientID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var messages []models.Message
+	for rows.Next() {
+		var msg models.Message
+		if err := rows.Scan(&msg.ID, &msg.SenderID, &msg.ReceiverID, &msg.Text, &msg.Timestamp, &msg.ChatID); err != nil {
+			return nil, err
+		}
+		messages = append(messages, msg)
+	}
+
+	return messages, nil
 }
