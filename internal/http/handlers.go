@@ -106,5 +106,26 @@ func (s *Server) handleSendMessage(ctx *gin.Context) {
 }
 
 func (s *Server) handleGetMessages(ctx *gin.Context) {
-	// ...
+	session := sessions.Default(ctx)
+	// requester's id of int type
+	reqIDInt := session.Get(utils.UserID).(int)
+	/* 	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"err": "invalid requester's id"})
+		return
+	} */
+	interID := ctx.Query("u")
+	// interlocutor's id of int type
+	interIDInt, err := strconv.Atoi(interID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"err": "invalid user id"})
+		return
+	}
+
+	messages, err := s.db.GetChatHistory(reqIDInt, interIDInt)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"messages": messages})
 }
