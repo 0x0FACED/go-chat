@@ -4,6 +4,7 @@ import (
 	"go-chat/internal/models"
 	"go-chat/internal/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -57,6 +58,7 @@ func (s *Server) handleLogin(ctx *gin.Context) {
 	}
 	uuid := uuid.NewString()
 	session.Set(utils.SessionKey, uuid)
+	session.Set(utils.UserID, u.ID)
 	session.Save()
 	ctx.JSON(http.StatusOK, gin.H{utils.SessionKey: session.Get(utils.SessionKey), "username": u.Username})
 }
@@ -76,16 +78,18 @@ func (s *Server) handleLogout(ctx *gin.Context) {
 func (s *Server) handleSendMessage(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	token := session.Get(utils.SessionKey)
+	id := session.Get(utils.UserID)
 	if token == nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"err": "you are not logged in"})
 		return
 	}
-	var mes models.Message
 
+	var mes models.Message
 	if err := ctx.BindJSON(&mes); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
+	mes.SenderID = id.(int)
 	savedMes, err := s.db.SaveMessage(&mes)
 	if err != nil {
 		s.logger.Println("err save mes:", err)
