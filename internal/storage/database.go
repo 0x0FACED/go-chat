@@ -17,7 +17,7 @@ type Database interface {
 type UserDB interface {
 	Login(u *models.User) (*models.User, error)
 	Register(u *models.User) (*models.User, error)
-	GetUserByUsername(username string) (*models.User, error)
+	GetUserIDByUsername(username string) (int, error)
 	GetUserByID(id int) (*models.User, error)
 }
 

@@ -198,9 +198,19 @@ func (p *Postgres) GetMessageByID(id int) (*models.Message, error) {
 	panic("implement me")
 }
 
-func (p *Postgres) GetUserByUsername(username string) (*models.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (p *Postgres) GetUserIDByUsername(username string) (int, error) {
+	var userID int
+	err := p.db.QueryRow(utils.QueryGetUserIDByUsernameTx, username).Scan(&userID)
+	if err == sql.ErrNoRows {
+		return -1, sql.ErrNoRows
+	}
+
+	if err != nil {
+		return -1, err
+	}
+
+	return userID, nil
+
 }
 
 func (p *Postgres) GetUserByID(id int) (*models.User, error) {
