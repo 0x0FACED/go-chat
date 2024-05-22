@@ -53,14 +53,15 @@ func (s *Server) handleLogin(ctx *gin.Context) {
 	u, err := s.db.Login(&user)
 	if err != nil {
 		s.logger.Errorln("cant login:", err)
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"err": err.Error()})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"err": utils.ErrIncorrectUsernameOrPass})
 		return
 	}
+	s.logger.Println(u)
 	uuid := uuid.NewString()
 	session.Set(utils.SessionKey, uuid)
 	session.Set(utils.UserID, u.ID)
 	session.Save()
-	ctx.JSON(http.StatusOK, gin.H{utils.SessionKey: session.Get(utils.SessionKey), "username": u.Username})
+	ctx.JSON(http.StatusOK, gin.H{utils.SessionKey: session.Get(utils.SessionKey), "user": u})
 }
 
 func (s *Server) handleLogout(ctx *gin.Context) {
@@ -90,6 +91,9 @@ func (s *Server) handleSendMessage(ctx *gin.Context) {
 		return
 	}
 	mes.SenderID = id.(int)
+	s.logger.Println("First user id: ", id)
+	s.logger.Println("First user SenderID: ", mes.SenderID)
+	s.logger.Println("Second user id: ", mes.ReceiverID)
 	savedMes, err := s.db.SaveMessage(&mes)
 	if err != nil {
 		s.logger.Println("err save mes:", err)
