@@ -95,6 +95,9 @@ func (p *Postgres) Login(u *models.User) (*models.User, error) {
 	if err != nil {
 		return nil, errors.New(utils.ErrCommitTx + err.Error())
 	}
+	u.ID = id
+	u.Name = name
+	u.Username = username
 	u.Description = desc
 	u.RegistrationDate = regDate
 	return u, nil
