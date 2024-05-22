@@ -66,7 +66,7 @@ func (m *MySQL) GetMessageByID(id int) (*models.Message, error) {
 	panic("implement me")
 }
 
-func (m *MySQL) GetUserByUsername(username string) (*models.User, error) {
+func (m *MySQL) GetUserIDByUsername(username string) (int, error) {
 	//TODO implement me
 	panic("implement me")
 }
