@@ -107,10 +107,17 @@ func (p *Postgres) Register(u *models.User) (*models.User, error) {
 	if err := utils.ValidateUser(u); err != nil {
 		return nil, err
 	}
+	userID, err := p.GetUserIDByUsername(u.Username)
+	log.Println("User ID 1111: ", userID)
+	log.Println("ERR: ", err)
+	if err != sql.ErrNoRows {
+		return nil, errors.New(utils.ErrUserExists)
+	}
+	log.Println("User ID: ", userID)
 
-	/* 	if _, err := p.GetUserByUsername(u.Username); err != nil {
-		return nil, err
-	} */
+	if userID != -1 {
+		return nil, errors.New(utils.ErrUserExists)
+	}
 
 	hashedPass, err := u.HashPassword(u.Password)
 	fmt.Println("Hashed pass register:", hashedPass)
