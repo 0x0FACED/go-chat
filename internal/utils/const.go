@@ -30,31 +30,45 @@ const (
 )
 
 const (
-	QueryLoginTx = `SELECT id, name, username, registration_date, description 
-	FROM users 
-	WHERE username = $1 AND password = $2`
+	QueryLoginTx = `
+		SELECT id, name, username, registration_date, description 
+		FROM users 
+		WHERE username = $1 AND password = $2`
 
-	QueryRegisterTx = `INSERT INTO users (name, username, password, description) 
-	VALUES ($1, $2, $3, $4)`
+	QueryRegisterTx = `
+		INSERT INTO users (name, username, password, description) 
+		VALUES ($1, $2, $3, $4)`
 
-	QueryGetPasswordTx = `SELECT password 
-	FROM users 
-	WHERE username = $1`
+	QueryGetPasswordTx = `
+		SELECT password 
+		FROM users 
+		WHERE username = $1`
 
-	QuerySaveMessageTx = `INSERT INTO messages (sender_id, receiver_id, text, chat_id) 
-	VALUES ($1, $2, $3, $4) 
-	RETURNING id, timestamp`
+	QuerySaveMessageTx = `
+		INSERT INTO messages (sender_id, receiver_id, text, chat_id) 
+		VALUES ($1, $2, $3, $4) 
+		RETURNING id, timestamp`
 
-	QueryCreateChatTx = `INSERT INTO chats (first_user_id, second_user_id) 
-	VALUES ($1, $2) 
-	RETURNING id`
+	QueryCreateChatTx = `
+		INSERT INTO chats (first_user_id, second_user_id) 
+		VALUES ($1, $2) 
+		RETURNING id`
 
-	QueryFindChatTx = `SELECT id 
-	FROM chats 
-	WHERE (first_user_id = $1 AND second_user_id = $2) OR (first_user_id = $2 AND second_user_id = $1)`
+	QueryFindChatTx = `
+		SELECT id 
+		FROM chats 
+		WHERE (first_user_id = $1 AND second_user_id = $2) 
+		OR (first_user_id = $2 AND second_user_id = $1)`
 
-	QueryGetMessagesTx = `SELECT id, sender_id, receiver_id, text, timestamp, chat_id 
-	FROM messages 
-	WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1) 
-	ORDER BY timestamp`
+	QueryGetMessagesTx = `
+		SELECT id, sender_id, receiver_id, text, timestamp, chat_id 
+		FROM messages 
+		WHERE (sender_id = $1 AND receiver_id = $2) 
+		OR (sender_id = $2 AND receiver_id = $1) 
+		ORDER BY timestamp`
+
+	QueryGetUserIDByUsernameTx = `
+		SELECT id
+		FROM users
+		WHERE username = $1`
 )
