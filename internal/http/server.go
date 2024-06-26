@@ -17,11 +17,14 @@ import (
 )
 
 type Server struct {
-	r      *gin.Engine
-	db     storage.Database
-	config config.Config
-	logger *logrus.Logger
-	redis  *redis.Client
+	r         *gin.Engine
+	db        storage.Database
+	config    config.Config
+	logger    *logrus.Logger
+	redis     *redis.Client
+	clients   map[*websocket.Conn]bool
+	broadcast chan models.Message
+	upgrader  websocket.Upgrader
 }
 
 func NewServer(cfg config.Config) *Server {
