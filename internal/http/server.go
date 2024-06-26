@@ -3,15 +3,18 @@ package http
 import (
 	"errors"
 	"go-chat/config"
+	"go-chat/internal/models"
 	"go-chat/internal/storage"
 	"go-chat/internal/storage/redis"
 	"go-chat/internal/utils"
 	"go-chat/migrations"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
@@ -29,10 +32,19 @@ type Server struct {
 
 func NewServer(cfg config.Config) *Server {
 	return &Server{
-		r:      gin.Default(),
-		logger: logrus.New(),
-		config: cfg,
-		redis:  redis.New(&cfg.Redis),
+		r:         gin.Default(),
+		logger:    logrus.New(),
+		config:    cfg,
+		redis:     redis.New(&cfg.Redis),
+		clients:   make(map[*websocket.Conn]bool),
+		broadcast: make(chan models.Message),
+		upgrader: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
 	}
 }
 
@@ -76,6 +88,8 @@ func (s *Server) StartServer() error {
 	if err != nil {
 		return err
 	}
+	go s.handleMessages()
+
 	addr := s.config.Server.Host + ":" + strconv.Itoa(s.config.Server.Port)
 	err = s.r.Run(addr)
 	if err != nil {
