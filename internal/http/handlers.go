@@ -17,6 +17,39 @@ func (s *Server) prepareRoutes() {
 	s.r.Handle(http.MethodPost, "/logout", s.handleLogout)
 	s.r.Handle(http.MethodPost, "/send_message", s.handleSendMessage)
 	s.r.Handle(http.MethodGet, "/get_messages", s.handleGetMessages)
+	s.r.Handle(http.MethodGet, "/ws", s.handleWebSocket)
+}
+
+func (s *Server) handleMessages() {
+	for {
+		msg := <-s.broadcast
+		for client := range s.clients {
+			err := client.WriteJSON(msg)
+			if err != nil {
+				client.Close()
+				delete(s.clients, client)
+			}
+		}
+	}
+}
+
+func (s *Server) handleWebSocket(ctx *gin.Context) {
+	conn, err := s.upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+	s.clients[conn] = true
+
+	for {
+		var msg models.Message
+		err := conn.ReadJSON(&msg)
+		if err != nil {
+			delete(s.clients, conn)
+			break
+		}
+		s.broadcast <- msg
+	}
 }
 
 func (s *Server) handleRegister(ctx *gin.Context) {
